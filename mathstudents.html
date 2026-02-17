@@ -3,9 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Velocity Search</title>
+    <title>Velocity 2.0</title>
     <link rel="icon" type="image/jpeg" href="mathpunch.jpeg" />
-    
+    <script
+      defer
+      data-domain="math-punch"
+      src="https://stats.senty.com.au/js/script.outbound-links.pageview-props.tagged-events.js"
+    ></script>
+    <script>
+      window.plausible =
+        window.plausible ||
+        function () {
+          ;(window.plausible.q = window.plausible.q || []).push(arguments)
+        }
+    </script>
     <link
       href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap"
       rel="stylesheet"
@@ -13,24 +24,22 @@
     <script src="https://unpkg.com/alpinejs" defer></script>
     <script type="module" src="shader-client.js"></script>
     <script type="module" src="shader-canvas.js"></script>
-    
     <style>
       :root {
-        /* Velocity Color Palette: Black, Blue, Red, White */
         --bg-primary: #000000;
-        --bg-secondary: #000a1a; /* Dark Blue tint */
+        --bg-secondary: #000a1a;
         --bg-tertiary: #00050f;
-        --accent: #0070f3;      /* Electric Blue */
+        --accent: #0070f3; /* Blue Accent */
         --accent-hover: #0050b3;
         --accent-glow: #00a2ff;
         --text-primary: #ffffff;
         --text-secondary: #94a3b8;
-        --border: #001a33;
-        --border-active: #003366;
+        --border: #1e1e1e;
+        --border-active: #0070f3;
         --success: #00ff88;
-        --error: #ff003c;       /* Red accent */
+        --error: #ff003c; /* Red highlight */
         --warning: #facc15;
-        --shadow-blue: rgba(0, 112, 243, 0.3);
+        --shadow-red: rgba(0, 112, 243, 0.3); /* Changed to blue shadow */
       }
 
       * {
@@ -39,13 +48,14 @@
         box-sizing: border-box;
       }
 
-      html, body {
+      html,
+      body {
         height: 100%;
         margin: 0;
       }
 
       body {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         background: var(--bg-primary);
         color: var(--text-primary);
         display: flex;
@@ -53,7 +63,7 @@
         overflow: hidden;
       }
 
-      /* Original Zyron Background Effects - Blue Version */
+      /* Math Background Effect - Themed Blue */
       .bg-effects {
         position: fixed;
         top: 0;
@@ -65,7 +75,7 @@
           radial-gradient(circle at 20% 20%, rgba(0, 112, 243, 0.15) 0%, transparent 50%),
           radial-gradient(circle at 80% 80%, rgba(255, 0, 60, 0.1) 0%, transparent 50%),
           radial-gradient(circle at 50% 50%, rgba(0, 30, 80, 0.3) 0%, transparent 70%),
-          linear-gradient(135deg, #000814 0%, #000000 50%, #050000 100%);
+          linear-gradient(135deg, #000a1a 0%, #000000 50%, #050000 100%);
         overflow: hidden;
       }
 
@@ -81,11 +91,46 @@
         background-size: 40px 40px;
         pointer-events: none;
         animation: grid-glow 4s ease-in-out infinite;
+        will-change: opacity;
+        transform: translateZ(0);
       }
 
       @keyframes grid-glow {
-        0%, 100% { opacity: 0.5; }
-        50% { opacity: 0.8; }
+        0%, 100% {
+          opacity: 0.5;
+        }
+        50% {
+          opacity: 0.8;
+        }
+      }
+
+      .bg-effects::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 112, 243, 0.1) 0%, transparent 70%);
+        animation: rotate-shine 20s linear infinite;
+        pointer-events: none;
+        will-change: transform;
+        transform: translateZ(0);
+      }
+
+      @keyframes rotate-shine {
+        0% { transform: rotate(0deg) translateZ(0); }
+        100% { transform: rotate(360deg) translateZ(0); }
+      }
+
+      .animated-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 1;
       }
 
       .floating-particle {
@@ -94,15 +139,34 @@
         border-radius: 50%;
         opacity: 0;
         animation: float-up 15s linear infinite;
+        will-change: transform, opacity;
+        transform: translateZ(0);
       }
 
       @keyframes float-up {
         0% { transform: translate3d(0, 110vh, 0); opacity: 0; }
         10% { opacity: 0.3; }
+        50% { opacity: 0.5; }
+        90% { opacity: 0.2; }
         100% { transform: translate3d(0, -110vh, 0); opacity: 0; }
       }
 
-      /* Top Bar & Navigation */
+      .line-sweep {
+        position: absolute;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        opacity: 0;
+        animation: sweep 10s ease-in-out infinite;
+        will-change: transform, opacity;
+        transform: translateZ(0);
+      }
+
+      @keyframes sweep {
+        0% { transform: translate3d(-120%, 0, 0); opacity: 0; }
+        50% { opacity: 0.5; }
+        100% { transform: translate3d(220%, 0, 0); opacity: 0; }
+      }
+
       .top-bar {
         background: rgba(0, 5, 10, 0.95);
         backdrop-filter: blur(10px);
@@ -111,7 +175,15 @@
         flex-direction: column;
         padding-top: 5px;
         z-index: 100;
-        box-shadow: 0 2px 10px var(--shadow-blue);
+        box-shadow: 0 2px 10px rgba(0, 112, 243, 0.2);
+      }
+
+      .tabs-container {
+        display: flex;
+        align-items: flex-end;
+        padding: 0 10px;
+        gap: 5px;
+        overflow-x: auto;
       }
 
       .tab {
@@ -124,17 +196,20 @@
         align-items: center;
         gap: 8px;
         min-width: 120px;
+        max-width: 200px;
         border: 1px solid transparent;
+        border-bottom: none;
+        opacity: 0.6;
+        transition: all 0.2s;
         color: var(--text-secondary);
-        transition: 0.2s;
       }
 
       .tab.active {
         background: var(--bg-secondary);
         opacity: 1;
         border-color: var(--border-active);
-        color: var(--accent);
-        box-shadow: 0 0 10px var(--shadow-blue);
+        color: var(--text-primary);
+        box-shadow: 0 0 10px rgba(0, 112, 243, 0.2);
       }
 
       .toolbar {
@@ -146,6 +221,20 @@
         border-bottom: 1px solid var(--border);
       }
 
+      .nav-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+      }
+      .nav-btn:hover { background: rgba(0, 112, 243, 0.1); color: var(--accent); }
+
       .url-bar input {
         width: 100%;
         padding: 7px 15px;
@@ -153,15 +242,23 @@
         border: 1px solid var(--border);
         border-radius: 6px;
         color: var(--text-primary);
+        font-size: 0.9rem;
         outline: none;
       }
 
       .url-bar input:focus {
         border-color: var(--accent);
-        box-shadow: 0 0 10px var(--shadow-blue);
+        box-shadow: 0 0 10px rgba(0, 112, 243, 0.3);
       }
 
-      /* Empty State / Logo Design */
+      .content-area {
+        flex: 1;
+        background: var(--bg-primary);
+        overflow: hidden;
+        position: relative;
+        display: flex;
+      }
+
       .empty-state {
         position: absolute;
         top: 0;
@@ -171,27 +268,30 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: flex-start;
         padding-top: 10vh;
-        background: linear-gradient(180deg, #000814 0%, #000000 100%);
+        background: linear-gradient(180deg, #000a1a 0%, #000000 100%);
+        overflow-y: auto;
         z-index: 10;
       }
 
       .math-logo {
         font-family: 'Orbitron', sans-serif;
-        font-size: 3.5rem;
+        font-size: 3rem;
         font-weight: 700;
         color: white;
-        letter-spacing: 0.3rem;
+        letter-spacing: 0.2rem;
         text-transform: uppercase;
-        text-shadow: 0 0 20px var(--shadow-blue);
+        text-shadow: 0 0 20px rgba(0, 112, 243, 0.5);
       }
 
       .version-tag {
         font-family: 'Space Mono', monospace;
-        color: var(--error); /* Red tag for contrast */
-        letter-spacing: 0.5rem;
         font-size: 0.9rem;
-        margin-top: -5px;
+        letter-spacing: 0.4rem;
+        color: var(--error); /* Red Version Tag */
+        text-transform: uppercase;
+        margin-top: -0.4rem;
       }
 
       .app-card {
@@ -199,54 +299,37 @@
         border: 1px solid var(--border);
         border-radius: 8px;
         padding: 12px 8px;
-        transition: 0.2s;
-        cursor: pointer;
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
       }
 
       .app-card:hover {
+        background: var(--bg-secondary);
         border-color: var(--accent);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px var(--shadow-blue);
+        box-shadow: 0 4px 12px rgba(0, 112, 243, 0.3);
       }
 
       .aboutblank-btn {
         margin-top: 30px;
         padding: 12px 30px;
         background: var(--bg-tertiary);
-        border: 1px solid var(--error);
-        color: var(--error);
+        border: 1px solid var(--error); /* Red border for stealth */
         border-radius: 8px;
+        color: var(--error);
+        font-family: 'Space Mono', monospace;
         cursor: pointer;
         transition: 0.2s;
-        font-family: 'Space Mono', monospace;
       }
 
       .aboutblank-btn:hover {
         background: var(--error);
         color: white;
         box-shadow: 0 0 15px rgba(255, 0, 60, 0.4);
-      }
-
-      /* Reuse Zyron positioning for particles */
-      .floating-particle:nth-child(1) { width: 4px; height: 4px; left: 10%; animation-delay: 0s; }
-      .floating-particle:nth-child(2) { width: 6px; height: 6px; left: 25%; animation-delay: 2s; }
-      .floating-particle:nth-child(3) { width: 3px; height: 3px; left: 40%; animation-delay: 4s; }
-      .line-sweep {
-        position: absolute;
-        width: 300px;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, var(--accent), transparent);
-        opacity: 0.3;
-        animation: sweep 10s ease-in-out infinite;
-      }
-      @keyframes sweep {
-        0% { transform: translateX(-120%); opacity: 0; }
-        50% { opacity: 0.5; }
-        100% { transform: translateX(220%); opacity: 0; }
       }
     </style>
   </head>
@@ -255,61 +338,64 @@
       <div class="bg-grid"></div>
     </div>
 
-    <div class="top-bar" x-show="ready">
-      <div class="tabs-container" style="display:flex; padding:0 10px; gap:5px;">
+    <div x-show="!ready" class="loading-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:black; display:flex; justify-content:center; align-items:center; z-index:2000;">
+        <div style="color:var(--accent); font-family:'Space Mono';">INITIALIZING_VELOCITY...</div>
+    </div>
+
+    <div class="top-bar" x-show="ready" style="display: none">
+      <div class="tabs-container">
         <template x-for="tab in tabs" :key="tab.id">
           <div class="tab" :class="{ 'active': activeTabId === tab.id }" @click="activateTab(tab.id)">
             <span class="tab-title" x-text="tab.title || 'New Tab'"></span>
             <span class="close-tab" @click.stop="closeTab(tab.id)">×</span>
           </div>
         </template>
-        <div class="new-tab-btn" @click="addTab()" style="padding:8px; cursor:pointer;">+</div>
+        <div class="new-tab-btn" @click="addTab()">+</div>
       </div>
 
       <div class="toolbar">
         <div class="url-bar" style="flex:1">
           <form @submit.prevent="navigate()">
-            <input type="text" x-model="currentUrlInput" placeholder="Search Velocity..." />
+            <input type="text" x-model="currentUrlInput" placeholder="Search or enter URL..." />
           </form>
         </div>
       </div>
     </div>
 
-    <div class="content-area" x-show="ready" style="flex:1; position:relative;">
-      <div id="canvas-container"></div>
+    <div class="content-area" x-show="ready" style="display: none">
+      <div id="canvas-container" style="flex:1;"></div>
 
       <div class="empty-state" x-show="showNewTabUI">
         <div class="animated-bg">
-          <div class="floating-particle"></div>
-          <div class="floating-particle"></div>
-          <div class="floating-particle"></div>
-          <div class="line-sweep" style="top:30%"></div>
+            <div class="floating-particle" style="width:4px; height:4px; left:10%; bottom:0; animation: float-up 12s infinite;"></div>
+            <div class="floating-particle" style="width:6px; height:6px; left:25%; bottom:0; animation: float-up 14s infinite;"></div>
+            <div class="line-sweep" style="width:200px; top:30%; animation: sweep 10s infinite;"></div>
         </div>
 
-        <div class="logo-group" style="z-index: 2; text-align:center; margin-bottom:40px;">
-          <div class="math-logo">VELOCITY</div>
-          <div class="version-tag">SEARCH</div>
+        <div class="logo-group" style="position: relative; z-index: 2;">
+          <div class="math-logo">Velocity</div>
+          <div class="version-tag">2.0</div>
         </div>
 
-        <div class="search-container" style="z-index: 2; width:100%; max-width:400px; margin-bottom:30px;">
+        <div class="search-container" style="position: relative; z-index: 2; width:100%; max-width:400px; margin-bottom:30px;">
           <form @submit.prevent="navigateFromHome()">
-            <input type="text" x-model="homeSearchInput" placeholder="Enter query..." 
-                   style="width:100%; padding:12px; background:#000; border:1px solid var(--border); border-radius:6px; color:#fff;"/>
+            <input type="text" x-model="homeSearchInput" placeholder="search..." autofocus 
+                   style="width:100%; padding:10px 18px; background:var(--bg-tertiary); border:1px solid var(--border); border-radius:6px; color:white; outline:none;"/>
           </form>
         </div>
 
-        <div class="quick-apps-section" style="z-index: 2; width:100%; max-width:480px;">
+        <div class="quick-apps-section" style="position: relative; z-index: 2; width:100%; max-width:480px; padding:0 20px;">
           <div class="quick-apps-grid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
             <template x-for="bm in bookmarks" :key="bm.id">
               <div class="app-card" @click="navigateBookmark(bm.url)">
-                <span class="app-name" x-text="bm.name" style="font-size:0.7rem; color:var(--text-primary)"></span>
+                <span class="app-name" x-text="bm.name" style="font-size:0.7rem;"></span>
               </div>
             </template>
           </div>
         </div>
 
-        <button class="aboutblank-btn" @click="openInAboutBlank()" style="z-index: 2;">
-          LAUNCH STEALTH MODE
+        <button class="aboutblank-btn" @click="openInAboutBlank()" style="position: relative; z-index: 2;">
+          Open in about:blank
         </button>
       </div>
     </div>
@@ -336,17 +422,17 @@
           },
           activateTab(id) {
             this.activeTabId = id;
-            let tab = this.tabs.find(t => t.id === id);
-            this.showNewTabUI = tab.url === '';
+            const tab = this.tabs.find(t => t.id === id);
+            this.showNewTabUI = (tab.url === '');
           },
           closeTab(id) {
-            if(this.tabs.length > 1) {
+            if (this.tabs.length > 1) {
               this.tabs = this.tabs.filter(t => t.id !== id);
               this.activateTab(this.tabs[0].id);
             }
           },
           navigate() {
-            let tab = this.tabs.find(t => t.id === this.activeTabId);
+            const tab = this.tabs.find(t => t.id === this.activeTabId);
             tab.url = this.currentUrlInput;
             tab.title = this.currentUrlInput;
             this.showNewTabUI = false;
@@ -360,13 +446,13 @@
             this.navigate();
           },
           openInAboutBlank() {
-            let win = window.open('about:blank', '_blank');
+            const win = window.open('about:blank', '_blank');
             if (win) {
-              let doc = win.document;
-              let iframe = doc.createElement('iframe');
-              iframe.src = window.location.href;
-              iframe.style = "position:fixed; top:0; left:0; width:100%; height:100%; border:none;";
-              doc.body.appendChild(iframe);
+              const doc = win.document;
+              const frame = doc.createElement('iframe');
+              frame.src = window.location.href;
+              frame.style = "position:fixed; top:0; left:0; width:100%; height:100%; border:none; margin:0; padding:0;";
+              doc.body.appendChild(frame);
               window.location.replace('https://classroom.google.com');
             }
           }
