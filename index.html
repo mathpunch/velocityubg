@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velocity</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --accent: #0070f3;
+            --card-hover: rgba(0, 112, 243, 0.1);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            letter-spacing: 0.5rem;
+            margin-bottom: 4rem;
+            text-transform: uppercase;
+            /* Subtle blue glow on the main title */
+            text-shadow: 0 0 20px rgba(0, 112, 243, 0.3);
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            display: block;
+            width: 240px;
+            padding: 30px 0;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-transform: lowercase;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            background: transparent;
+        }
+
+        .btn:hover {
+            border-color: var(--accent);
+            background: var(--card-hover);
+            box-shadow: 0 0 30px rgba(0, 112, 243, 0.15);
+            transform: translateY(-2px);
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>VELOCITY</h1>
+
+    <div class="container">
+        <a href="mathworksheets.html" class="btn">
+            velocity gxmes
+        </a>
+
+        <a href="mathstudents.html" class="btn">
+            velocity proxy
+        </a>
+    </div>
+
+</body>
+</html>
