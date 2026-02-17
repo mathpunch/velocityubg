@@ -1,341 +1,354 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Velocity Search</title>
-    <link rel="icon" type="image/jpeg" href="mathpunch.jpeg">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="mathpunch.jpeg" />
+    
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://unpkg.com/alpinejs" defer></script>
+    <script type="module" src="shader-client.js"></script>
+    <script type="module" src="shader-canvas.js"></script>
     
     <style>
-        :root {
-            --bg: #000000;
-            --surface: #0a0a0a;
-            --surface-hover: #121212;
-            --accent-blue: #0070f3;
-            --accent-red: #ff003c;
-            --text-main: #ffffff;
-            --text-dim: #a0a0a0;
-            --border: #222222;
-            --glass: rgba(255, 255, 255, 0.03);
-        }
+      :root {
+        /* Velocity Color Palette */
+        --bg-primary: #000000;
+        --bg-secondary: #0a0a0a;
+        --accent-blue: #0070f3;
+        --accent-red: #ff003c;
+        --text-white: #ffffff;
+        --text-dim: #94a3b8;
+        --border-color: #1e1e1e;
+        
+        /* Interactive States */
+        --glow-blue: 0 0 15px rgba(0, 112, 243, 0.4);
+        --glow-red: 0 0 15px rgba(255, 0, 60, 0.4);
+      }
 
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        /* Modern Gradient Background */
-        .velocity-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            background: 
-                radial-gradient(circle at 0% 0%, rgba(0, 112, 243, 0.15) 0%, transparent 35%),
-                radial-gradient(circle at 100% 100%, rgba(255, 0, 60, 0.1) 0%, transparent 35%);
-        }
+      body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-white);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+      }
 
-        /* Top Bar Navigation */
-        .navbar {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            z-index: 100;
-        }
+      /* Background System Hook */
+      #canvas-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+      }
 
-        .tabs-row {
-            display: flex;
-            gap: 8px;
-            flex: 1;
-            margin-right: 20px;
-        }
+      /* Original Zyron Layout: Top Navigation */
+      .top-bar {
+        background: rgba(0, 0, 0, 0.9);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        z-index: 100;
+      }
 
-        .tab-button {
-            background: var(--glass);
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.2s ease;
-            min-width: 140px;
-        }
+      .tabs-container {
+        display: flex;
+        padding: 8px 10px 0 10px;
+        gap: 4px;
+        overflow-x: auto;
+      }
 
-        .tab-button.active {
-            background: white;
-            color: black;
-            border-color: white;
-        }
+      .tab {
+        background: var(--bg-secondary);
+        padding: 10px 20px;
+        border-radius: 5px 5px 0 0;
+        font-family: 'Space Mono', monospace;
+        font-size: 11px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid var(--border-color);
+        border-bottom: none;
+        color: var(--text-dim);
+        min-width: 160px;
+        transition: 0.2s;
+      }
 
-        .tab-button:hover:not(.active) {
-            background: var(--surface-hover);
-            border-color: var(--accent-blue);
-            color: var(--text-main);
-        }
+      .tab.active {
+        background: var(--bg-primary);
+        color: var(--accent-blue);
+        border-top: 2px solid var(--accent-blue);
+        border-left: 1px solid var(--accent-blue);
+        border-right: 1px solid var(--accent-blue);
+      }
 
-        /* Main Search Interface */
-        .main-container {
-            flex: 1;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding-bottom: 10vh;
-        }
+      .toolbar {
+        background: #050505;
+        padding: 8px 15px;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        border-bottom: 1px solid var(--border-color);
+      }
 
-        .brand-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
+      .url-bar {
+        flex: 1;
+      }
 
-        .velocity-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 4.5rem;
-            font-weight: 800;
-            margin: 0;
-            letter-spacing: -2px;
-            background: linear-gradient(to right, #ffffff, var(--accent-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+      .url-bar input {
+        width: 100%;
+        padding: 8px 16px;
+        background: #000;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        color: white;
+        font-family: 'Space Mono', monospace;
+        font-size: 13px;
+        outline: none;
+      }
 
-        .velocity-subtitle {
-            font-size: 1rem;
-            color: var(--accent-red);
-            text-transform: uppercase;
-            letter-spacing: 8px;
-            margin-top: -5px;
-            font-weight: 600;
-        }
+      .url-bar input:focus {
+        border-color: var(--accent-blue);
+        box-shadow: var(--glow-blue);
+      }
 
-        /* Modern Search Box */
-        .search-wrapper {
-            width: 100%;
-            max-width: 650px;
-            position: relative;
-        }
+      /* Original Zyron Layout: Central UI */
+      .landing-ui {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        padding-bottom: 10vh;
+      }
 
-        .search-input {
-            width: 100%;
-            padding: 18px 30px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 100px;
-            color: white;
-            font-size: 18px;
-            outline: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        }
+      .velocity-logo {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 4.5rem;
+        font-weight: 700;
+        letter-spacing: 12px;
+        margin-bottom: 35px;
+        background: linear-gradient(to bottom, #ffffff 50%, var(--accent-blue) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-transform: uppercase;
+      }
 
-        .search-input:focus {
-            border-color: var(--accent-blue);
-            background: #0e0e0e;
-            box-shadow: 0 0 30px rgba(0, 112, 243, 0.2);
-            transform: translateY(-2px);
-        }
+      .search-container {
+        width: 100%;
+        max-width: 600px;
+        margin-bottom: 45px;
+      }
 
-        /* App Grid */
-        .app-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-top: 50px;
-            width: 100%;
-            max-width: 650px;
-        }
+      .search-container input {
+        width: 100%;
+        padding: 18px 25px;
+        background: rgba(5, 5, 5, 0.8);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: white;
+        font-size: 16px;
+        text-align: center;
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
 
-        .app-item {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+      .search-container input:focus {
+        border-color: var(--accent-red);
+        box-shadow: var(--glow-red);
+        outline: none;
+        transform: scale(1.02);
+      }
 
-        .app-item:hover {
-            background: var(--surface-hover);
-            border-color: var(--accent-red);
-            transform: translateY(-5px);
-        }
+      /* Original Zyron Layout: Bookmarks Grid */
+      .bookmarks-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        width: 100%;
+        max-width: 600px;
+      }
 
-        .app-icon {
-            width: 32px;
-            height: 32px;
-            margin-bottom: 12px;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-red));
-            border-radius: 8px;
-            display: inline-block;
-        }
+      .bookmark-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        padding: 20px 10px;
+        text-align: center;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
 
-        .app-label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-main);
-        }
+      .bookmark-card:hover {
+        border-color: var(--accent-blue);
+        transform: translateY(-4px);
+        box-shadow: var(--glow-blue);
+      }
 
-        /* Control Buttons */
-        .action-bar {
-            position: absolute;
-            bottom: 40px;
-            display: flex;
-            gap: 15px;
-        }
+      .bookmark-card span {
+        font-family: 'Space Mono', monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-dim);
+      }
 
-        .btn-action {
-            padding: 10px 24px;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            border: 1px solid var(--border);
-            background: var(--glass);
-            color: white;
-        }
+      .bookmark-card:hover span {
+        color: var(--text-white);
+      }
 
-        .btn-action:hover {
-            background: white;
-            color: black;
-        }
+      /* Functional Buttons */
+      .action-btn {
+        margin-top: 50px;
+        padding: 12px 30px;
+        background: transparent;
+        border: 1px solid var(--accent-red);
+        color: var(--accent-red);
+        cursor: pointer;
+        font-family: 'Space Mono', monospace;
+        font-size: 12px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        transition: 0.3s;
+      }
 
-        .btn-cloak {
-            border-color: var(--accent-red);
-            color: var(--accent-red);
-        }
+      .action-btn:hover {
+        background: var(--accent-red);
+        color: white;
+        box-shadow: var(--glow-red);
+      }
 
-        .btn-cloak:hover {
-            background: var(--accent-red);
-            color: white;
-        }
-
+      /* Proxy Viewport */
+      .viewport-container {
+        flex: 1;
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        border: none;
+      }
     </style>
-</head>
-<body x-data="velocityApp()">
+  </head>
 
-    <div class="velocity-bg"></div>
+  <body x-data="velocityApp()">
+    <div id="canvas-container"></div>
 
-    <nav class="navbar">
-        <div class="tabs-row">
-            <template x-for="tab in tabs" :key="tab.id">
-                <div class="tab-button" :class="activeTabId === tab.id ? 'active' : ''" @click="activateTab(tab.id)">
-                    <span x-text="tab.title"></span>
-                    <span style="margin-left: auto; opacity: 0.5;" @click.stop="closeTab(tab.id)">×</span>
-                </div>
-            </template>
-            <button style="background:none; border:none; color:white; cursor:pointer; padding:0 10px; font-size:20px;" @click="addTab()">+</button>
+    <div class="top-bar">
+      <div class="tabs-container">
+        <template x-for="tab in tabs" :key="tab.id">
+          <div class="tab" :class="{ 'active': activeTabId === tab.id }" @click="switchTab(tab.id)">
+            <span x-text="tab.title"></span>
+            <span style="margin-left:auto; opacity:0.4;" @click.stop="removeTab(tab.id)">×</span>
+          </div>
+        </template>
+        <div style="padding: 10px; cursor: pointer; color: var(--accent-blue); font-weight: bold;" @click="createNewTab()">+</div>
+      </div>
+
+      <div class="toolbar">
+        <div class="url-bar">
+          <form @submit.prevent="processNavigation()">
+            <input type="text" x-model="inputUrl" placeholder="Enter URL or search 'Velocity'..." />
+          </form>
         </div>
+      </div>
+    </div>
+
+    <main style="flex: 1; position: relative; display: flex; flex-direction: column;">
+      
+      <div class="landing-ui" x-show="isHomeMode">
+        <h1 class="velocity-logo">VELOCITY</h1>
         
-        <div style="font-family: 'Orbitron'; font-size: 12px; color: var(--accent-blue);">V_2.0</div>
-    </nav>
-
-    <main class="main-container">
-        
-        <div x-show="showHome" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-            <div class="brand-header">
-                <h1 class="velocity-title">VELOCITY</h1>
-                <div class="velocity-subtitle">Search</div>
-            </div>
-
-            <div class="search-wrapper">
-                <form @submit.prevent="handleSearch()">
-                    <input type="text" class="search-input" x-model="searchQuery" placeholder="Search the web or enter a URL" autofocus>
-                </form>
-            </div>
-
-            <div class="app-grid">
-                <template x-for="app in apps" :key="app.name">
-                    <div class="app-item" @click="launchApp(app.url)">
-                        <div class="app-icon"></div>
-                        <span class="app-label" x-text="app.name"></span>
-                    </div>
-                </template>
-            </div>
-
-            <div class="action-bar">
-                <button class="btn-action btn-cloak" @click="cloakSession()">Cloak Tab</button>
-                <button class="btn-action" @click="settings()">Settings</button>
-            </div>
+        <div class="search-container">
+          <form @submit.prevent="processNavigation()">
+            <input type="text" x-model="inputUrl" placeholder="VELOCITY_SEARCH_INITIALIZE" autofocus />
+          </form>
         </div>
 
-        <div x-show="!showHome" style="width:100%; height:100%; position:absolute; top:0; left:0;">
-            <div id="proxy-render" style="width:100%; height:100%; background: white;">
-                </div>
+        <div class="bookmarks-grid">
+          <template x-for="site in sites" :key="site.name">
+            <div class="bookmark-card" @click="fastLaunch(site.url)">
+              <span x-text="site.name"></span>
+            </div>
+          </template>
         </div>
 
+        <button class="action-btn" @click="cloakSession()">Enable Stealth Mode</button>
+      </div>
+
+      <div class="viewport-container" x-show="!isHomeMode" id="view-portal">
+          </div>
     </main>
 
     <script>
-        function velocityApp() {
-            return {
-                showHome: true,
-                searchQuery: '',
-                activeTabId: 1,
-                tabs: [{ id: 1, title: 'Velocity Home', url: '' }],
-                apps: [
-                    { name: 'YouTube', url: 'https://youtube.com' },
-                    { name: 'Discord', url: 'https://discord.com' },
-                    { name: 'Google', url: 'https://google.com' },
-                    { name: 'Games', url: 'mathworksheets.html' }
-                ],
-                handleSearch() {
-                    if (!this.searchQuery) return;
-                    this.showHome = false;
-                    // Integration with your existing proxy logic here
-                    console.log("Navigating to:", this.searchQuery);
-                },
-                launchApp(url) {
-                    this.searchQuery = url;
-                    this.handleSearch();
-                },
-                addTab() {
-                    const id = Date.now();
-                    this.tabs.push({ id, title: 'New Tab', url: '' });
-                    this.activateTab(id);
-                },
-                activateTab(id) {
-                    this.activeTabId = id;
-                    const tab = this.tabs.find(t => t.id === id);
-                    this.showHome = !tab.url;
-                },
-                closeTab(id) {
-                    if (this.tabs.length > 1) {
-                        this.tabs = this.tabs.filter(t => t.id !== id);
-                        this.activateTab(this.tabs[0].id);
-                    }
-                },
-                cloakSession() {
-                    const win = window.open();
-                    const url = window.location.href;
-                    const iframe = win.document.createElement('iframe');
-                    iframe.style = "width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden;";
-                    iframe.src = url;
-                    win.document.body.style.margin = "0";
-                    win.document.body.appendChild(iframe);
-                    window.location.replace('https://google.com');
-                }
+      function velocityApp() {
+        return {
+          isHomeMode: true,
+          activeTabId: 1,
+          inputUrl: '',
+          tabs: [{ id: 1, title: 'Velocity Home', url: '' }],
+          sites: [
+            { name: 'Google', url: 'https://google.com' },
+            { name: 'YouTube', url: 'https://youtube.com' },
+            { name: 'Discord', url: 'https://discord.com' },
+            { name: 'Games', url: 'mathworksheets.html' }
+          ],
+          createNewTab() {
+            const newId = Date.now();
+            this.tabs.push({ id: newId, title: 'New Tab', url: '' });
+            this.switchTab(newId);
+          },
+          switchTab(id) {
+            this.activeTabId = id;
+            const target = this.tabs.find(t => t.id === id);
+            this.inputUrl = target.url;
+            this.isHomeMode = (target.url === '');
+          },
+          removeTab(id) {
+            if (this.tabs.length > 1) {
+              this.tabs = this.tabs.filter(t => t.id !== id);
+              this.switchTab(this.tabs[0].id);
             }
+          },
+          processNavigation() {
+            if (!this.inputUrl) return;
+            const current = this.tabs.find(t => t.id === this.activeTabId);
+            current.url = this.inputUrl;
+            current.title = this.inputUrl.replace('https://', '').split('/')[0].toUpperCase();
+            this.isHomeMode = false;
+            // Your internal proxy trigger function goes here
+          },
+          fastLaunch(url) {
+            this.inputUrl = url;
+            this.processNavigation();
+          },
+          cloakSession() {
+            const win = window.open('about:blank', '_blank');
+            if (win) {
+              const doc = win.document;
+              const frame = doc.createElement('iframe');
+              frame.src = window.location.href;
+              frame.style = "position:fixed; top:0; left:0; width:100%; height:100%; border:none; margin:0; padding:0;";
+              doc.body.appendChild(frame);
+              window.location.replace('https://classroom.google.com');
+            }
+          }
         }
+      }
     </script>
-</body>
+  </body>
 </html>
