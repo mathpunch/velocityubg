@@ -16,18 +16,21 @@
     
     <style>
       :root {
-        /* Velocity Color Palette */
+        /* Velocity Color Palette: Black, Blue, Red, White */
         --bg-primary: #000000;
-        --bg-secondary: #0a0a0a;
-        --accent-blue: #0070f3;
-        --accent-red: #ff003c;
-        --text-white: #ffffff;
-        --text-dim: #94a3b8;
-        --border-color: #1e1e1e;
-        
-        /* Interactive States */
-        --glow-blue: 0 0 15px rgba(0, 112, 243, 0.4);
-        --glow-red: 0 0 15px rgba(255, 0, 60, 0.4);
+        --bg-secondary: #000a1a; /* Dark Blue tint */
+        --bg-tertiary: #00050f;
+        --accent: #0070f3;      /* Electric Blue */
+        --accent-hover: #0050b3;
+        --accent-glow: #00a2ff;
+        --text-primary: #ffffff;
+        --text-secondary: #94a3b8;
+        --border: #001a33;
+        --border-active: #003366;
+        --success: #00ff88;
+        --error: #ff003c;       /* Red accent */
+        --warning: #facc15;
+        --shadow-blue: rgba(0, 112, 243, 0.3);
       }
 
       * {
@@ -36,314 +39,334 @@
         box-sizing: border-box;
       }
 
+      html, body {
+        height: 100%;
+        margin: 0;
+      }
+
       body {
         font-family: 'Inter', sans-serif;
         background: var(--bg-primary);
-        color: var(--text-white);
+        color: var(--text-primary);
         display: flex;
         flex-direction: column;
-        height: 100vh;
         overflow: hidden;
       }
 
-      /* Background System Hook */
-      #canvas-container {
+      /* Original Zyron Background Effects - Blue Version */
+      .bg-effects {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         z-index: -1;
+        background: 
+          radial-gradient(circle at 20% 20%, rgba(0, 112, 243, 0.15) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(255, 0, 60, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 50% 50%, rgba(0, 30, 80, 0.3) 0%, transparent 70%),
+          linear-gradient(135deg, #000814 0%, #000000 50%, #050000 100%);
+        overflow: hidden;
       }
 
-      /* Original Zyron Layout: Top Navigation */
+      .bg-grid {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+          linear-gradient(rgba(0, 112, 243, 0.08) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 112, 243, 0.08) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+        animation: grid-glow 4s ease-in-out infinite;
+      }
+
+      @keyframes grid-glow {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 0.8; }
+      }
+
+      .floating-particle {
+        position: absolute;
+        background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+        border-radius: 50%;
+        opacity: 0;
+        animation: float-up 15s linear infinite;
+      }
+
+      @keyframes float-up {
+        0% { transform: translate3d(0, 110vh, 0); opacity: 0; }
+        10% { opacity: 0.3; }
+        100% { transform: translate3d(0, -110vh, 0); opacity: 0; }
+      }
+
+      /* Top Bar & Navigation */
       .top-bar {
-        background: rgba(0, 0, 0, 0.9);
-        border-bottom: 1px solid var(--border-color);
+        background: rgba(0, 5, 10, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border);
         display: flex;
         flex-direction: column;
+        padding-top: 5px;
         z-index: 100;
-      }
-
-      .tabs-container {
-        display: flex;
-        padding: 8px 10px 0 10px;
-        gap: 4px;
-        overflow-x: auto;
+        box-shadow: 0 2px 10px var(--shadow-blue);
       }
 
       .tab {
-        background: var(--bg-secondary);
-        padding: 10px 20px;
-        border-radius: 5px 5px 0 0;
-        font-family: 'Space Mono', monospace;
-        font-size: 11px;
+        background: transparent;
+        padding: 8px 15px;
+        border-radius: 8px 8px 0 0;
+        font-size: 0.85rem;
         cursor: pointer;
         display: flex;
         align-items: center;
-        gap: 12px;
-        border: 1px solid var(--border-color);
-        border-bottom: none;
-        color: var(--text-dim);
-        min-width: 160px;
+        gap: 8px;
+        min-width: 120px;
+        border: 1px solid transparent;
+        color: var(--text-secondary);
         transition: 0.2s;
       }
 
       .tab.active {
-        background: var(--bg-primary);
-        color: var(--accent-blue);
-        border-top: 2px solid var(--accent-blue);
-        border-left: 1px solid var(--accent-blue);
-        border-right: 1px solid var(--accent-blue);
+        background: var(--bg-secondary);
+        opacity: 1;
+        border-color: var(--border-active);
+        color: var(--accent);
+        box-shadow: 0 0 10px var(--shadow-blue);
       }
 
       .toolbar {
-        background: #050505;
-        padding: 8px 15px;
+        background: var(--bg-secondary);
+        padding: 6px 15px;
         display: flex;
-        gap: 15px;
+        gap: 10px;
         align-items: center;
-        border-bottom: 1px solid var(--border-color);
-      }
-
-      .url-bar {
-        flex: 1;
+        border-bottom: 1px solid var(--border);
       }
 
       .url-bar input {
         width: 100%;
-        padding: 8px 16px;
-        background: #000;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        color: white;
-        font-family: 'Space Mono', monospace;
-        font-size: 13px;
+        padding: 7px 15px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text-primary);
         outline: none;
       }
 
       .url-bar input:focus {
-        border-color: var(--accent-blue);
-        box-shadow: var(--glow-blue);
+        border-color: var(--accent);
+        box-shadow: 0 0 10px var(--shadow-blue);
       }
 
-      /* Original Zyron Layout: Central UI */
-      .landing-ui {
-        flex: 1;
+      /* Empty State / Logo Design */
+      .empty-state {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
+        padding-top: 10vh;
+        background: linear-gradient(180deg, #000814 0%, #000000 100%);
         z-index: 10;
-        padding-bottom: 10vh;
       }
 
-      .velocity-logo {
+      .math-logo {
         font-family: 'Orbitron', sans-serif;
-        font-size: 4.5rem;
+        font-size: 3.5rem;
         font-weight: 700;
-        letter-spacing: 12px;
-        margin-bottom: 35px;
-        background: linear-gradient(to bottom, #ffffff 50%, var(--accent-blue) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-transform: uppercase;
-      }
-
-      .search-container {
-        width: 100%;
-        max-width: 600px;
-        margin-bottom: 45px;
-      }
-
-      .search-container input {
-        width: 100%;
-        padding: 18px 25px;
-        background: rgba(5, 5, 5, 0.8);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
         color: white;
-        font-size: 16px;
-        text-align: center;
-        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .search-container input:focus {
-        border-color: var(--accent-red);
-        box-shadow: var(--glow-red);
-        outline: none;
-        transform: scale(1.02);
-      }
-
-      /* Original Zyron Layout: Bookmarks Grid */
-      .bookmarks-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 15px;
-        width: 100%;
-        max-width: 600px;
-      }
-
-      .bookmark-card {
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        padding: 20px 10px;
-        text-align: center;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: 0.3s;
-      }
-
-      .bookmark-card:hover {
-        border-color: var(--accent-blue);
-        transform: translateY(-4px);
-        box-shadow: var(--glow-blue);
-      }
-
-      .bookmark-card span {
-        font-family: 'Space Mono', monospace;
-        font-size: 11px;
+        letter-spacing: 0.3rem;
         text-transform: uppercase;
-        letter-spacing: 2px;
-        color: var(--text-dim);
+        text-shadow: 0 0 20px var(--shadow-blue);
       }
 
-      .bookmark-card:hover span {
-        color: var(--text-white);
+      .version-tag {
+        font-family: 'Space Mono', monospace;
+        color: var(--error); /* Red tag for contrast */
+        letter-spacing: 0.5rem;
+        font-size: 0.9rem;
+        margin-top: -5px;
       }
 
-      /* Functional Buttons */
-      .action-btn {
-        margin-top: 50px;
+      .app-card {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px 8px;
+        transition: 0.2s;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .app-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px var(--shadow-blue);
+      }
+
+      .aboutblank-btn {
+        margin-top: 30px;
         padding: 12px 30px;
-        background: transparent;
-        border: 1px solid var(--accent-red);
-        color: var(--accent-red);
+        background: var(--bg-tertiary);
+        border: 1px solid var(--error);
+        color: var(--error);
+        border-radius: 8px;
         cursor: pointer;
+        transition: 0.2s;
         font-family: 'Space Mono', monospace;
-        font-size: 12px;
-        border-radius: 4px;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        transition: 0.3s;
       }
 
-      .action-btn:hover {
-        background: var(--accent-red);
+      .aboutblank-btn:hover {
+        background: var(--error);
         color: white;
-        box-shadow: var(--glow-red);
+        box-shadow: 0 0 15px rgba(255, 0, 60, 0.4);
       }
 
-      /* Proxy Viewport */
-      .viewport-container {
-        flex: 1;
-        width: 100%;
-        height: 100%;
-        background: #fff;
-        border: none;
+      /* Reuse Zyron positioning for particles */
+      .floating-particle:nth-child(1) { width: 4px; height: 4px; left: 10%; animation-delay: 0s; }
+      .floating-particle:nth-child(2) { width: 6px; height: 6px; left: 25%; animation-delay: 2s; }
+      .floating-particle:nth-child(3) { width: 3px; height: 3px; left: 40%; animation-delay: 4s; }
+      .line-sweep {
+        position: absolute;
+        width: 300px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        opacity: 0.3;
+        animation: sweep 10s ease-in-out infinite;
+      }
+      @keyframes sweep {
+        0% { transform: translateX(-120%); opacity: 0; }
+        50% { opacity: 0.5; }
+        100% { transform: translateX(220%); opacity: 0; }
       }
     </style>
   </head>
+  <body x-data="mathApp()">
+    <div class="bg-effects">
+      <div class="bg-grid"></div>
+    </div>
 
-  <body x-data="velocityApp()">
-    <div id="canvas-container"></div>
-
-    <div class="top-bar">
-      <div class="tabs-container">
+    <div class="top-bar" x-show="ready">
+      <div class="tabs-container" style="display:flex; padding:0 10px; gap:5px;">
         <template x-for="tab in tabs" :key="tab.id">
-          <div class="tab" :class="{ 'active': activeTabId === tab.id }" @click="switchTab(tab.id)">
-            <span x-text="tab.title"></span>
-            <span style="margin-left:auto; opacity:0.4;" @click.stop="removeTab(tab.id)">×</span>
+          <div class="tab" :class="{ 'active': activeTabId === tab.id }" @click="activateTab(tab.id)">
+            <span class="tab-title" x-text="tab.title || 'New Tab'"></span>
+            <span class="close-tab" @click.stop="closeTab(tab.id)">×</span>
           </div>
         </template>
-        <div style="padding: 10px; cursor: pointer; color: var(--accent-blue); font-weight: bold;" @click="createNewTab()">+</div>
+        <div class="new-tab-btn" @click="addTab()" style="padding:8px; cursor:pointer;">+</div>
       </div>
 
       <div class="toolbar">
-        <div class="url-bar">
-          <form @submit.prevent="processNavigation()">
-            <input type="text" x-model="inputUrl" placeholder="Enter URL or search 'Velocity'..." />
+        <div class="url-bar" style="flex:1">
+          <form @submit.prevent="navigate()">
+            <input type="text" x-model="currentUrlInput" placeholder="Search Velocity..." />
           </form>
         </div>
       </div>
     </div>
 
-    <main style="flex: 1; position: relative; display: flex; flex-direction: column;">
-      
-      <div class="landing-ui" x-show="isHomeMode">
-        <h1 class="velocity-logo">VELOCITY</h1>
-        
-        <div class="search-container">
-          <form @submit.prevent="processNavigation()">
-            <input type="text" x-model="inputUrl" placeholder="VELOCITY_SEARCH_INITIALIZE" autofocus />
+    <div class="content-area" x-show="ready" style="flex:1; position:relative;">
+      <div id="canvas-container"></div>
+
+      <div class="empty-state" x-show="showNewTabUI">
+        <div class="animated-bg">
+          <div class="floating-particle"></div>
+          <div class="floating-particle"></div>
+          <div class="floating-particle"></div>
+          <div class="line-sweep" style="top:30%"></div>
+        </div>
+
+        <div class="logo-group" style="z-index: 2; text-align:center; margin-bottom:40px;">
+          <div class="math-logo">VELOCITY</div>
+          <div class="version-tag">SEARCH</div>
+        </div>
+
+        <div class="search-container" style="z-index: 2; width:100%; max-width:400px; margin-bottom:30px;">
+          <form @submit.prevent="navigateFromHome()">
+            <input type="text" x-model="homeSearchInput" placeholder="Enter query..." 
+                   style="width:100%; padding:12px; background:#000; border:1px solid var(--border); border-radius:6px; color:#fff;"/>
           </form>
         </div>
 
-        <div class="bookmarks-grid">
-          <template x-for="site in sites" :key="site.name">
-            <div class="bookmark-card" @click="fastLaunch(site.url)">
-              <span x-text="site.name"></span>
-            </div>
-          </template>
+        <div class="quick-apps-section" style="z-index: 2; width:100%; max-width:480px;">
+          <div class="quick-apps-grid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
+            <template x-for="bm in bookmarks" :key="bm.id">
+              <div class="app-card" @click="navigateBookmark(bm.url)">
+                <span class="app-name" x-text="bm.name" style="font-size:0.7rem; color:var(--text-primary)"></span>
+              </div>
+            </template>
+          </div>
         </div>
 
-        <button class="action-btn" @click="cloakSession()">Enable Stealth Mode</button>
+        <button class="aboutblank-btn" @click="openInAboutBlank()" style="z-index: 2;">
+          LAUNCH STEALTH MODE
+        </button>
       </div>
-
-      <div class="viewport-container" x-show="!isHomeMode" id="view-portal">
-          </div>
-    </main>
+    </div>
 
     <script>
-      function velocityApp() {
+      function mathApp() {
         return {
-          isHomeMode: true,
+          ready: true,
           activeTabId: 1,
-          inputUrl: '',
-          tabs: [{ id: 1, title: 'Velocity Home', url: '' }],
-          sites: [
-            { name: 'Google', url: 'https://google.com' },
-            { name: 'YouTube', url: 'https://youtube.com' },
-            { name: 'Discord', url: 'https://discord.com' },
-            { name: 'Games', url: 'mathworksheets.html' }
+          showNewTabUI: true,
+          currentUrlInput: '',
+          homeSearchInput: '',
+          tabs: [{ id: 1, title: 'Home', url: '' }],
+          bookmarks: [
+            { id: 1, name: 'Google', url: 'https://google.com' },
+            { id: 2, name: 'YouTube', url: 'https://youtube.com' },
+            { id: 3, name: 'Discord', url: 'https://discord.com' },
+            { id: 4, name: 'Games', url: 'games.html' }
           ],
-          createNewTab() {
-            const newId = Date.now();
-            this.tabs.push({ id: newId, title: 'New Tab', url: '' });
-            this.switchTab(newId);
+          addTab() {
+            const id = Date.now();
+            this.tabs.push({ id, title: 'New Tab', url: '' });
+            this.activateTab(id);
           },
-          switchTab(id) {
+          activateTab(id) {
             this.activeTabId = id;
-            const target = this.tabs.find(t => t.id === id);
-            this.inputUrl = target.url;
-            this.isHomeMode = (target.url === '');
+            let tab = this.tabs.find(t => t.id === id);
+            this.showNewTabUI = tab.url === '';
           },
-          removeTab(id) {
-            if (this.tabs.length > 1) {
+          closeTab(id) {
+            if(this.tabs.length > 1) {
               this.tabs = this.tabs.filter(t => t.id !== id);
-              this.switchTab(this.tabs[0].id);
+              this.activateTab(this.tabs[0].id);
             }
           },
-          processNavigation() {
-            if (!this.inputUrl) return;
-            const current = this.tabs.find(t => t.id === this.activeTabId);
-            current.url = this.inputUrl;
-            current.title = this.inputUrl.replace('https://', '').split('/')[0].toUpperCase();
-            this.isHomeMode = false;
-            // Your internal proxy trigger function goes here
+          navigate() {
+            let tab = this.tabs.find(t => t.id === this.activeTabId);
+            tab.url = this.currentUrlInput;
+            tab.title = this.currentUrlInput;
+            this.showNewTabUI = false;
           },
-          fastLaunch(url) {
-            this.inputUrl = url;
-            this.processNavigation();
+          navigateFromHome() {
+            this.currentUrlInput = this.homeSearchInput;
+            this.navigate();
           },
-          cloakSession() {
-            const win = window.open('about:blank', '_blank');
+          navigateBookmark(url) {
+            this.currentUrlInput = url;
+            this.navigate();
+          },
+          openInAboutBlank() {
+            let win = window.open('about:blank', '_blank');
             if (win) {
-              const doc = win.document;
-              const frame = doc.createElement('iframe');
-              frame.src = window.location.href;
-              frame.style = "position:fixed; top:0; left:0; width:100%; height:100%; border:none; margin:0; padding:0;";
-              doc.body.appendChild(frame);
+              let doc = win.document;
+              let iframe = doc.createElement('iframe');
+              iframe.src = window.location.href;
+              iframe.style = "position:fixed; top:0; left:0; width:100%; height:100%; border:none;";
+              doc.body.appendChild(iframe);
               window.location.replace('https://classroom.google.com');
             }
           }
