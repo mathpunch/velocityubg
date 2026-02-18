@@ -63,7 +63,6 @@
         overflow: hidden;
       }
 
-      /* Background Effect */
       .bg-effects {
         position: fixed;
         top: 0;
@@ -119,7 +118,6 @@
         100% { transform: rotate(360deg) translateZ(0); }
       }
 
-      /* Animated Background for Home Screen */
       .animated-bg {
         position: absolute;
         top: 0;
@@ -178,7 +176,6 @@
         100% { transform: translate3d(220%, 0, 0); opacity: 0; }
       }
 
-      /* Top Bar & Navigation */
       .top-bar {
         background: rgba(2, 8, 20, 0.95);
         backdrop-filter: blur(10px);
@@ -332,7 +329,6 @@
         flex-shrink: 0;
       }
 
-      /* Content Area */
       .content-area {
         flex: 1;
         background: var(--bg-primary);
@@ -366,7 +362,6 @@
         border: none;
       }
 
-      /* Recently Visited Section */
       .recent-section {
         width: 100%;
         max-width: 480px;
@@ -447,7 +442,6 @@
         color: var(--accent);
       }
 
-      /* Empty State / Logo Design */
       .empty-state {
         position: absolute;
         top: 0;
@@ -521,7 +515,6 @@
         box-shadow: 0 0 15px var(--shadow-blue);
       }
 
-      /* Quick Apps / Bookmarks Grid */
       .quick-apps-section {
         width: 100%;
         max-width: 480px;
@@ -650,7 +643,6 @@
 
       .add-card:hover { color: var(--accent); }
 
-      /* About:blank Button */
       .aboutblank-btn {
         margin-top: 30px;
         padding: 12px 30px;
@@ -677,7 +669,6 @@
 
       .aboutblank-btn svg { width: 18px; height: 18px; }
 
-      /* Modal */
       .modal-overlay {
         position: fixed;
         top: 0;
@@ -764,7 +755,6 @@
         box-shadow: 0 0 15px var(--shadow-blue);
       }
 
-      /* Loading */
       .loading-overlay {
         position: fixed;
         top: 0;
@@ -796,7 +786,6 @@
       <div class="bg-grid"></div>
     </div>
 
-    <!-- Initialization Overlay -->
     <div x-show="!ready" class="loading-overlay">
       <template x-if="!initError">
         <div style="display:flex;flex-direction:column;align-items:center;">
@@ -814,7 +803,6 @@
       </template>
     </div>
 
-    <!-- Top Bar -->
     <div class="top-bar" x-show="ready" style="display: none">
       <div class="tabs-container">
         <template x-for="tab in tabs" :key="tab.id">
@@ -824,11 +812,7 @@
                 <div class="spinner" style="width: 12px; height: 12px; border-width: 2px; margin: 0"></div>
               </template>
               <template x-if="!tab.loading">
-                <img
-                  :src="tab.favicon || 'mathpunch.jpeg'"
-                  style="width: 14px; height: 14px; border-radius: 2px"
-                  onerror="this.onerror=null;this.src='mathpunch.jpeg'"
-                />
+                <img :src="tab.favicon || 'mathpunch.jpeg'" style="width: 14px; height: 14px; border-radius: 2px" onerror="this.onerror=null;this.src='mathpunch.jpeg'" />
               </template>
             </div>
             <span class="tab-title" x-text="tab.title || 'New Tab'"></span>
@@ -841,23 +825,19 @@
       <div class="toolbar">
         <button class="nav-btn" @click="goBack()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
+            <line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline>
           </svg>
         </button>
         <button class="nav-btn" @click="goForward()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
+            <line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline>
           </svg>
         </button>
         <button class="nav-btn" @click="reloadTab()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="23 4 23 10 17 10"></polyline>
-            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+            <polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
           </svg>
         </button>
-
         <div class="url-bar">
           <form @submit.prevent="navigate(); $event.target.querySelector('input').blur()" style="margin: 0">
             <input type="text" x-model="currentUrlInput" placeholder="Search or enter URL..." />
@@ -867,12 +847,10 @@
       </div>
     </div>
 
-    <!-- Main Content -->
     <div class="content-area" x-show="ready" style="display: none">
       <div class="tab-transition" :class="{ active: tabTransitioning }"></div>
       <div id="canvas-container"></div>
 
-      <!-- New Tab / Search View Overlay -->
       <div class="empty-state" x-show="showNewTabUI">
         <div class="animated-bg">
           <div class="floating-particle"></div>
@@ -910,11 +888,7 @@
             <template x-for="bm in bookmarks" :key="bm.id">
               <div class="app-card" @click="!isEditingBookmarks && navigateBookmark(bm.url)">
                 <div class="app-icon">
-                  <img
-                    :src="bm.icon || `https://www.google.com/s2/favicons?domain=${bm.url}&sz=64`"
-                    :alt="bm.name"
-                    onerror="this.onerror=null;this.src='mathpunch.jpeg'"
-                  />
+                  <img :src="bm.icon || `https://www.google.com/s2/favicons?domain=${bm.url}&sz=64`" :alt="bm.name" onerror="this.onerror=null;this.src='mathpunch.jpeg'" />
                 </div>
                 <span class="app-name" x-text="bm.name"></span>
                 <div class="card-actions" x-show="isEditingBookmarks">
@@ -940,7 +914,6 @@
           Open in about:blank
         </button>
 
-        <!-- Recently Visited -->
         <div class="recent-section" style="position: relative; z-index: 2;" x-show="recentSites.length > 0">
           <div class="section-header">
             <h3>Recently visited</h3>
@@ -949,11 +922,7 @@
           <div class="recent-list">
             <template x-for="(site, index) in recentSites.slice(0, 5)" :key="index">
               <div class="recent-item" @click="navigateBookmark(site.url)">
-                <img
-                  class="recent-favicon"
-                  :src="`https://www.google.com/s2/favicons?domain=${site.url}&sz=32`"
-                  onerror="this.onerror=null;this.style.opacity='0'"
-                />
+                <img class="recent-favicon" :src="`https://www.google.com/s2/favicons?domain=${site.url}&sz=32`" onerror="this.onerror=null;this.style.opacity='0'" />
                 <div class="recent-info">
                   <div class="recent-title" x-text="site.title || site.url"></div>
                   <div class="recent-url" x-text="site.url"></div>
@@ -966,7 +935,6 @@
       </div>
     </div>
 
-    <!-- Bookmark Modal -->
     <div class="modal-overlay" x-show="showBookmarkModal" x-transition.opacity style="display: none">
       <div class="modal" @click.away="showBookmarkModal = false">
         <h4 x-text="bookmarkForm.id ? 'Edit Bookmark' : 'Add Bookmark'"></h4>
@@ -996,7 +964,7 @@
           ready: false,
           error: null,
           initError: null,
-          loadingStatus: 'Initializing Velocity 2.0...',
+          loadingStatus: 'Initializing Velocity...',
           tabs: [],
           activeTabId: null,
           currentUrlInput: '',
@@ -1020,31 +988,29 @@
 
           async init() {
             const timeout = setTimeout(() => {
-              if (!this.ready) {
-                this.initError = 'Initialization timed out. The proxy files may be missing or blocked.'
-              }
+              if (!this.ready) this.initError = 'Initialization timed out. The proxy files may be missing or blocked.'
             }, 8000)
 
+            // YouTube (1), Deep AI (4), Twitch (5) removed
             const defaults = [
-              { id: 1, name: 'YouTube', url: 'https://youtube.com?search=math+punch' },
-              { id: 2, name: 'GitHub', url: 'https://github.com' },
-              { id: 3, name: 'CrazyGames', url: 'https://crazygames.com' },
-              { id: 4, name: 'Deep AI', url: 'https://deepai.org' },
-              { id: 5, name: 'Twitch', url: 'https://www.twitch.tv' },
-              { id: 6, name: 'SpenFlix', url: 'https://watch.spencerdevs.xyz' },
+              { id: 2, name: 'GitHub',      url: 'https://github.com' },
+              { id: 3, name: 'CrazyGames',  url: 'https://crazygames.com' },
+              { id: 6, name: 'SpenFlix',    url: 'https://watch.spencerdevs.xyz' },
               { id: 7, name: 'Shuttlemath', url: 'https://shuttlemath.com' },
-              { id: 8, name: 'nowgg', url: 'https://nowgg.fun' },
+              { id: 8, name: 'nowgg',       url: 'https://nowgg.fun' },
             ]
 
-            const savedBookmarks = localStorage.getItem('math_punch_bookmarks')
+            const savedBookmarks = localStorage.getItem('velocity_bookmarks')
             if (savedBookmarks) {
               try {
-                this.bookmarks = JSON.parse(savedBookmarks).map((bm) => {
-                  if (bm.icon && bm.icon.includes('google.com/s2/favicons?domain=about:blank')) bm.icon = ''
-                  const defaultBm = defaults.find((d) => d.id === bm.id)
-                  if (defaultBm) return { ...bm, ...defaultBm }
-                  return bm
-                })
+                this.bookmarks = JSON.parse(savedBookmarks)
+                  .filter(bm => ![1, 4, 5].includes(bm.id))
+                  .map((bm) => {
+                    if (bm.icon && bm.icon.includes('google.com/s2/favicons?domain=about:blank')) bm.icon = ''
+                    const defaultBm = defaults.find((d) => d.id === bm.id)
+                    if (defaultBm) return { ...bm, ...defaultBm }
+                    return bm
+                  })
                 this.saveToStorage()
               } catch {
                 this.bookmarks = defaults
@@ -1056,7 +1022,7 @@
             }
 
             try {
-              const savedRecent = localStorage.getItem('zyron_recent_sites')
+              const savedRecent = localStorage.getItem('velocity_recent_sites')
               if (savedRecent) this.recentSites = JSON.parse(savedRecent)
             } catch { this.recentSites = [] }
 
@@ -1088,17 +1054,14 @@
 
             this.canvas.on(ShaderCanvas.EVENTS.SURFACE_CREATED, (s) => this.refreshTabs())
             this.canvas.on(ShaderCanvas.EVENTS.SURFACE_CLOSED, () => this.refreshTabs())
-
             this.canvas.on(ShaderCanvas.EVENTS.SURFACE_CHANGE, (s) => {
               this.activeTabId = s ? s.id : null
               if (s) { this.updateFromSurface(s) } else { this.currentUrlInput = '' }
             })
-
             this.canvas.on(ShaderCanvas.EVENTS.URL_CHANGE, (data) => {
               this.currentUrlInput = data.decoded.includes('/newtab.html') || data.decoded === 'about:blank' ? '' : data.decoded
               this.refreshTabs()
             })
-
             this.canvas.on(ShaderCanvas.EVENTS.TITLE_CHANGE, () => {
               this.refreshTabs()
               const tab = this.activeTab
@@ -1109,13 +1072,7 @@
             this.canvas.on(ShaderCanvas.EVENTS.FAVICON_CHANGE, () => this.refreshTabs())
             this.canvas.on(ShaderCanvas.EVENTS.LOADING_START, () => this.refreshTabs())
             this.canvas.on(ShaderCanvas.EVENTS.LOADING_STOP, () => this.refreshTabs())
-
-            this.canvas.on(ShaderCanvas.EVENTS.READY, () => {
-              clearTimeout(timeout)
-              this.initError = null
-              this.ready = true
-            })
-
+            this.canvas.on(ShaderCanvas.EVENTS.READY, () => { clearTimeout(timeout); this.initError = null; this.ready = true })
             this.canvas.on(ShaderCanvas.EVENTS.ERROR, (e) => { console.error('ShaderCanvas error:', e) })
 
             try {
@@ -1144,12 +1101,12 @@
             })
             if (this.activeTab) {
               document.title = this.activeTab.title && this.activeTab.title !== 'New Tab'
-                ? `${this.activeTab.title} - Velocity 2.0`
-                : 'Velocity 2.0'
+                ? `${this.activeTab.title} - Velocity`
+                : 'Velocity'
             }
           },
 
-          saveToStorage() { localStorage.setItem('math_punch_bookmarks', JSON.stringify(this.bookmarks)) },
+          saveToStorage() { localStorage.setItem('velocity_bookmarks', JSON.stringify(this.bookmarks)) },
           addTab() { const id = this.canvas.createSurface(); this.canvas.switchSurface(id) },
           closeTab(id) { this.canvas.closeSurface(id) },
 
@@ -1173,21 +1130,21 @@
             this.recentSites = this.recentSites.filter(s => s.url !== site.url)
             this.recentSites.unshift(site)
             if (this.recentSites.length > 10) this.recentSites = this.recentSites.slice(0, 10)
-            localStorage.setItem('zyron_recent_sites', JSON.stringify(this.recentSites))
+            localStorage.setItem('velocity_recent_sites', JSON.stringify(this.recentSites))
           },
 
           removeRecent(index) {
             this.recentSites.splice(index, 1)
-            localStorage.setItem('zyron_recent_sites', JSON.stringify(this.recentSites))
+            localStorage.setItem('velocity_recent_sites', JSON.stringify(this.recentSites))
           },
 
-          clearRecent() { this.recentSites = []; localStorage.removeItem('zyron_recent_sites') },
+          clearRecent() { this.recentSites = []; localStorage.removeItem('velocity_recent_sites') },
 
           openInAboutBlank() {
             const win = window.open('about:blank', '_blank');
             if (!win) { alert('Popup blocked! Please allow popups for this site.'); return; }
             const doc = win.document;
-            doc.title = 'Velocity 2.0';
+            doc.title = 'Velocity';
             const iframe = doc.createElement('iframe');
             iframe.style = 'position:fixed;top:0;left:0;width:100%;height:100%;border:none;';
             iframe.src = window.location.href;
@@ -1214,4 +1171,4 @@
       }
     </script>
   </body>
-</html>
+              </html>
